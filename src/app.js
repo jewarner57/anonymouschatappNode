@@ -73,7 +73,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', async () => {
-    console.log('update pop');
     io.sockets.emit('updateRoomPopulation');
     await findEmptyRooms.findEmptyRooms(io);
   });
