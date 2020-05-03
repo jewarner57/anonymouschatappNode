@@ -33,23 +33,22 @@ io.on('connection', (socket) => {
 
   socket.on('createNewChatroom', async (settings) => {
     socket.leave('global');
+    io.sockets.emit('updateRoomPopulation');
 
     let roomCode = await createChatroom.createChatroom(settings, socket.id);
-    socket.join(roomCode);
+    socket.join(roomCode.roomAddress);
 
     socket.emit('recieveChatroomCode', roomCode);
   });
 
   socket.on('joinChatroom', async (roomObj) => {
     socket.leave('global');
+    io.sockets.emit('updateRoomPopulation');
 
-    let joinRoom = await joinChatroom.joinChatroomById(
-      roomObj,
-      io.sockets.adapter.rooms[roomObj.id.trim()]
-    );
+    let joinRoom = await joinChatroom.joinChatroomById(roomObj, io);
 
     if (joinRoom.willJoin !== false) {
-      socket.join(joinRoom.id);
+      socket.join(joinRoom.roomAddress);
       socket.emit('validateJoin', joinRoom);
     } else {
       socket.emit('joinError', joinRoom.status);
@@ -57,19 +56,21 @@ io.on('connection', (socket) => {
   });
 
   socket.on('sendPrivateMessage', (message) => {
-    socket.broadcast.to(message.roomID).emit('recieve' + message.roomID, {
-      body: message.body,
-      username: message.username,
-    });
+    socket.broadcast
+      .to(message.roomAddress)
+      .emit('recieve' + message.roomAddress, {
+        body: message.body,
+        username: message.username,
+      });
   });
 
-  socket.on('getRoomPopulation', async (roomID) => {
+  socket.on('getRoomPopulation', async (roomInfo) => {
     let population = {
-      users: io.sockets.adapter.rooms[roomID].length,
-      maxUsers: await getRoomMaxUsers.getRoomMaxUsers(roomID),
+      users: io.sockets.adapter.rooms[roomInfo.roomAddress].length,
+      maxUsers: await getRoomMaxUsers.getRoomMaxUsers(roomInfo.roomID),
     };
 
-    io.in(roomID).emit('recieveRoomPopulation', population);
+    io.in(roomInfo.roomAddress).emit('recieveRoomPopulation', population);
   });
 
   socket.on('disconnect', async () => {

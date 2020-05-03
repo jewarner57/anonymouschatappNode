@@ -1,3 +1,4 @@
+const uniqid = require('uniqid');
 let chatrooms = './db/chatrooms.json';
 var fs = require('fs');
 
@@ -8,9 +9,15 @@ async function createChatroom(settings, userId) {
 
   let newChatroom = {
     id: token,
+    roomAddress: uniqid(),
     password: password,
     maxPopulation: maxUsers,
     timeCreated: new Date(),
+  };
+
+  let connectInfo = {
+    id: token,
+    roomAddress: newChatroom.roomAddress,
   };
 
   //empty chatroom.json file should contain: { "chatrooms": [] }
@@ -25,7 +32,7 @@ async function createChatroom(settings, userId) {
       fs.writeFile(chatrooms, chatroomObj, 'utf8', () => {});
     }
   });
-  return token;
+  return connectInfo;
 }
 
 exports.createChatroom = createChatroom;
