@@ -24,11 +24,13 @@ io.on('connection', (socket) => {
   });
 
   socket.on('sendGlobalMessage', (message) => {
-    console.log('Global Chat: ', message.username + ': ' + message.body);
-    socket.broadcast.to('global').emit('receiveGlobalMessage', {
-      body: message.body,
-      username: message.username,
-    });
+    if (message.body.trim() != '') {
+      console.log('Global Chat: ', message.username + ': ' + message.body);
+      socket.broadcast.to('global').emit('receiveGlobalMessage', {
+        body: message.body,
+        username: message.username,
+      });
+    }
   });
 
   socket.on('createNewChatroom', async (settings) => {
@@ -56,18 +58,20 @@ io.on('connection', (socket) => {
   });
 
   socket.on('sendPrivateMessage', (message) => {
-    socket.broadcast
-      .to(message.roomAddress)
-      .emit('recieve' + message.roomAddress, {
-        body: message.body,
-        username: message.username,
-      });
+    if (message.body.trim() != '') {
+      socket.broadcast
+        .to(message.roomAddress)
+        .emit('recieve' + message.roomAddress, {
+          body: message.body,
+          username: message.username,
+        });
+    }
   });
 
   socket.on('getRoomPopulation', async (roomInfo) => {
     let population = {
       users: io.sockets.adapter.rooms[roomInfo.roomAddress].length,
-      maxUsers: await getRoomMaxUsers.getRoomMaxUsers(roomInfo.roomID),
+      maxUsers: await getRoomMaxUsers.getRoomMaxUsers(roomInfo.roomAddress),
     };
 
     io.in(roomInfo.roomAddress).emit('recieveRoomPopulation', population);
