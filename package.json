@@ -13,6 +13,7 @@
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "socket.io": "^2.3.0",
+    "uniqid": "^5.2.0",
     "ws": "^7.2.3"
   },
   "devDependencies": {
