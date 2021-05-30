@@ -14,7 +14,7 @@
     "morgan": "~1.9.1",
     "socket.io": "^2.3.0",
     "uniqid": "^5.2.0",
-    "ws": "^7.2.3"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "constantinople": "^4.0.1",
